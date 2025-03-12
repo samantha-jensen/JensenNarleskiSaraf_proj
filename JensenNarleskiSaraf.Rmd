@@ -21,17 +21,20 @@ exposure <- read.csv("ExposureConcentrationsRaw.csv")
 
 ```{r}
 
-# Calculate means and adding that as a summary dt would be good
+dangerous_pollutants <- exposure %>%
+  filter(Pollutant.Name == "FORMALDEHYDE", Pollutant.Name == "VINYL CHLORIDE",
+         Pollutant.Name == "BENZENE", Pollutant.Name == "TOULENE")
 
 ```
+
 # Initial Figures 
 
 ```{r}
 
 exposure_fig1 <- exposure %>%
-  ggplot(aes(x = Pollutant.Name, y = Total.Exposure.Conc)) + 
+  ggplot(aes(x = Pollutant.Name, y = Total.Exposure.Conc, fill = Pollutant.Name)) + 
   geom_jitter() +
-  facet_wrap(.~FIPS)
+  facet_wrap(.~Pollutant.Name)
 
 exposure_fig1
 ```
