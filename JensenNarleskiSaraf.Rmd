@@ -1,0 +1,38 @@
+---
+title: "JensenNarleskiSaraf_proj"
+author: "Samantha Jensen, Jaclyn Narleski, Akanksha Saraf"
+date: "2025-03-12"
+output: html_document
+---
+
+# Setup
+
+```{r}
+
+library(tidyverse)
+library(here)
+
+exposure <- read.csv("ExposureConcentrationsRaw.csv")
+# Would be a good idea to rename a lot of columns to make things easier
+
+```
+
+# Data Wrangling & Tidying
+
+```{r}
+
+# Calculate means and adding that as a summary dt would be good
+
+```
+# Initial Figures 
+
+```{r}
+
+exposure_fig1 <- exposure %>%
+  ggplot(aes(x = Population, y = Total.Exposure.Conc,
+             color = Pollutant.Name)) + 
+  geom_point() +
+  facet_wrap(.~Pollutant.Name)
+
+exposure_fig1
+```
