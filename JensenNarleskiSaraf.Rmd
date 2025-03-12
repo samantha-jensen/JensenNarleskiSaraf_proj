@@ -29,10 +29,9 @@ exposure <- read.csv("ExposureConcentrationsRaw.csv")
 ```{r}
 
 exposure_fig1 <- exposure %>%
-  ggplot(aes(x = Population, y = Total.Exposure.Conc,
-             color = Pollutant.Name)) + 
-  geom_point() +
-  facet_wrap(.~Pollutant.Name)
+  ggplot(aes(x = Pollutant.Name, y = Total.Exposure.Conc)) + 
+  geom_jitter() +
+  facet_wrap(.~FIPS)
 
 exposure_fig1
 ```
