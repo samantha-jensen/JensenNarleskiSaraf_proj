@@ -65,3 +65,33 @@ exposure_fig1 <- ggplot() +
 
 exposure_fig1
 ```
+
+```{r}
+carcinogens_activity_summary <- carcinogens %>%
+  group_by(Pollutant.Name) %>% 
+  summarise(across(c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc), mean))
+
+carcinogens_long <- pivot_longer(carcinogens_activity_summary, cols = c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc),  names_to = "Variable", values_to = "Value")
+carcinogens_long <- carcinogens_long %>% 
+  filter(Variable == "NR.CommercialLawnGarden.Exposure.Conc"| Variable == 
+           "NR.ResidentialLawnGarden.Exposure.Conc"| Variable == 
+           "NR.Construction.Exposure.Conc"| Variable ==
+           "NR.CommercialEquipment.Exposure.Conc")
+carcinogens_long <- carcinogens_long %>% 
+  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
+
+carcinogens_activity_summary <- carcinogens_activity_summary %>% 
+  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
+
+
+figure3 <- ggplot(carcinogens_long, aes(x = Pollutant.Name, y = Value)) + 
+  geom_point() + 
+  facet_wrap(~Variable) + 
+  labs(x = "Pollutant Name", 
+       y = "Exposure Concentration (mg/m3)", 
+       title = "Non-Zero Carcinogen Exposure Levels", 
+       caption = "This figure depicts the mean carcinogen exposure levels in Durham County from certain activities.")
+figure3
+
+```
+
