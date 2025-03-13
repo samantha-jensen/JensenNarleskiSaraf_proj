@@ -13,7 +13,7 @@ library(tidyverse)
 library(here)
 
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
-# Would be a good idea to rename a lot of columns to make things easier
+# Would be a good idea to rename a lot of columns to make things easier later on
 
 ```
 
@@ -21,9 +21,20 @@ exposure <- read.csv("ExposureConcentrationsRaw.csv")
 
 ```{r}
 
-dangerous_pollutants <- exposure %>%
-  filter(Pollutant.Name == "FORMALDEHYDE", Pollutant.Name == "VINYL CHLORIDE",
-         Pollutant.Name == "BENZENE", Pollutant.Name == "TOULENE")
+carcinogens <- exposure %>%
+  filter(Pollutant.Name %in% c("FORMALDEHYDE", "BENZENE", "TOULENE", 
+                               "CARBON TETRACHLORIDE", "CARBON DISULFIDE", 
+                               "1,3-BUTADIENE", "1,4-DICHLOROBENZENE"),
+         FIPS == "37063")
+
+carcinogens_summary <- carcinogens %>%
+  group_by(Pollutant.Name) %>%
+  summarise(average_exposure = mean(Total.Exposure.Conc, na.rm = TRUE)) %>%
+#  mutate(average_exposure = format(
+#    round(average_exposure, 5), scientific = FALSE),
+#   sd_exposure = format(
+#    round(sd_exposure, 5), scientific = FALSE)) %>%
+  ungroup()
 
 ```
 
@@ -31,10 +42,29 @@ dangerous_pollutants <- exposure %>%
 
 ```{r}
 
-exposure_fig1 <- exposure %>%
-  ggplot(aes(x = Pollutant.Name, y = Total.Exposure.Conc, fill = Pollutant.Name)) + 
-  geom_jitter() +
-  facet_wrap(.~Pollutant.Name)
+exposure_fig1 <- ggplot() +
+  geom_jitter(data = carcinogens,
+              aes(x = 1, y = Total.Exposure.Conc, color = "maroon2"),
+              alpha = 0.7) +
+  geom_point(data = carcinogens_summary,
+             aes(x = 1, y = average_exposure), 
+             size = 4,
+             color = "darkred") +
+  facet_wrap(~Pollutant.Name, scales = "free_y") +
+  labs(title = "Air Exposure Concentrations of Carcinogenic VOCs in Durham, NC",
+       y = "Total Exposure Concentration (mg/m3)",
+       x = NULL,
+       caption = "The above graphs display the varying exposure concentrations 
+       of recorded volatilie organic compounds (VOCs) in the air during 2014 in 
+       Durham, North Carolina. These specific VOCs are 
+       known to potentially increase the risk of cancer, making them 
+       carcinogens.") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5, face = "bold", color = "darkred"),
+        legend.position = "none")
 
 exposure_fig1
 ```
