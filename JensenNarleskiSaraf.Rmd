@@ -21,6 +21,7 @@ exposure <- read.csv("ExposureConcentrationsRaw.csv")
 
 ```{r}
 
+# Seperating out potential VOCs that are considered carcinogens
 carcinogens <- exposure %>%
   filter(Pollutant.Name %in% c("FORMALDEHYDE", "BENZENE", "TOULENE", 
                                "CARBON TETRACHLORIDE", "CARBON DISULFIDE", 
@@ -30,10 +31,6 @@ carcinogens <- exposure %>%
 carcinogens_summary <- carcinogens %>%
   group_by(Pollutant.Name) %>%
   summarise(average_exposure = mean(Total.Exposure.Conc, na.rm = TRUE)) %>%
-#  mutate(average_exposure = format(
-#    round(average_exposure, 5), scientific = FALSE),
-#   sd_exposure = format(
-#    round(sd_exposure, 5), scientific = FALSE)) %>%
   ungroup()
 
 ```
