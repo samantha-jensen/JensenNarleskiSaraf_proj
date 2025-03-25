@@ -4,7 +4,18 @@ author: "Samantha Jensen, Jaclyn Narleski, Akanksha Saraf"
 date: "2025-03-12"
 output: html_document
 ---
-recreational, commercial, industrial comparing specific pollutants (ANOVA)
+Is there a significant difference between exposures for pollutants based on activity?
+recreational, commercial, industrial, agricultural comparing specific pollutants (ANOVA)
+comparing the NC air quality levels for exposure to the real levels that we are seeing.
+
+next steps: 
+- picking pollutants (2) (formaldehyde, diesel PM, maybe another)
+- sorting columns into categories 
+- find NC air quality standards for selected pollutants 
+
+
+
+
 # Setup
 
 ```{r}
