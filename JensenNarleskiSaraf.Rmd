@@ -20,15 +20,27 @@ next steps:
 
 ```{r}
 
+# Load packages
 library(tidyverse)
 library(here)
 
+# Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
-# Would be a good idea to rename a lot of columns to make things easier later on
 
 ```
 
 # Data Wrangling & Tidying
+
+```{r}
+
+# Note that exposure concentration is in units ug/m3
+# OR = On Road
+# PT = Point source
+# NR = Nonroad
+# NP = Nonpoint
+
+  
+```
 
 ```{r}
 
