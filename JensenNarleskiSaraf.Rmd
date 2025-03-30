@@ -23,24 +23,38 @@ next steps:
 # Load packages
 library(tidyverse)
 library(here)
+library(knitr)
 
 # Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
 
 ```
+# Methods
 
-# Data Wrangling & Tidying
+## Data Source(s)
 
-```{r}
+## Data Tidying
 
-# Note that exposure concentration is in units ug/m3
-# OR = On Road
-# PT = Point source
-# NR = Nonroad
-# NP = Nonpoint
+The raw dataset for exposure concentrations of air toxics in North Carolina contains the following information for each measurement of exposure: EPA region, county, FIPS code, FIPS tract, population, pollutant name, total exposure concentration, and several different sources that contributed to that total exposure concentration. The EPA divides these sources into different categories, as displayed below in Figure 1: 
 
-  
-```
+Figure 1: National Air Toxics Assessment (NATA) Emission Sources
+
+| On Road                       | Non-Road                           | Non-Point Stationary                       | Other                 |
+|-------------------------------|------------------------------------|--------------------------------------------------------------------|
+| Light Duty Gas On-Network     | Recreational & Pleasure Craft      | Industrial                                 | Fires                 |
+| Light Duty Diesel On-Network  | Construction                       | Oil & Gas                                  | Biogenics             |
+| Light Duty Gas Off-Network    | Commercial Lawn & Garden           | Commercial Cooking                         | Secondary Formation   |
+| Light Duty Diesel Off-Network | Residential Lawn & Garden          | Solvents and Coatings                      | Background            |
+| Heavy Duty Gas On-Network     | Agricultural Equipment             | Bulk Terminal Storage & Transfer (stage 1) |                       |                       
+| Heavy Duty Diesel On-Network  | Commercial Equipment               | Fuel Combustion (except residential wood)  |                       |                       
+| Heavy Duty Gas Off-Network    | Commercial Marine Vessel C1/C2     | Waste Disposal                             |                       |                       
+| Heavy Duty Diesel Off-Network | Commercial Marine Vessel C3        | Agricultural Livestock                     |                       |                       
+| Heavy Duty Diesel Hoteling    | Commercial Marine Vessels Underway | Miscellaneous Nonindustrial                |                       |                       
+| Refueling                     | Locomotives                        |                                            |                       |                       
+|                               | Airports (point source)            |                                            |                       |                     
+|                               | Railroads (point source)           |                                            |                       |                       
+|                               | All Other Non-Road Equipment       |                                            |                       |                       
+]
 
 ```{r}
 
