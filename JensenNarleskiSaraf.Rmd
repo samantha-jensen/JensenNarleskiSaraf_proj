@@ -25,6 +25,11 @@ library(knitr)
 
 # Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
+# Loading in dataset with urban/rural classification for each county in NC 
+urban_rural <- read_xlsx("urban_rural.xlsx")
+# dataset with unemployment and median family income 
+census <- read_xlsx("census_combined.xlsx")
+
 
 ```
 # Methods
@@ -58,6 +63,124 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 "Non-Road" references mobile sources that aren't on the U.S. highway system. This can range from recreational vehicles like snowcraft, boats, ATVs, dirt bikes to industrial/agricultural equipment and other forms of transportation like airports, railines ("railroads" and "locomotives"), and marine vessels. Marine vessels are categorized by engine size, with C1 and C2 considered smaller and C3 considered larger, as well as by "underway", or not anchored.
 
 "Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
+
+```{r}
+# making rural/urban into a factor 
+urban_rural$URBAN_RURAL <- as.factor(urban_rural$URBAN_RURAL)
+# filtering census data 
+census_select <- census %>% 
+  select(County, `Median Family Income (Dollars)`:`Population Density (Persons Per SqMile)`)
+# making income a numeric class 
+census_select$`Median Family Income (Dollars)` <- as.numeric(gsub("[^0-9]", "", 
+                                census_select$`Median Family Income (Dollars)`))
+census_select$`Population Density (Persons Per SqMile)` <-  as.numeric(gsub("[^0-9,.]", "", 
+                                census_select$`Population Density (Persons Per SqMile)`))
+
+# making datasets for the Pollutants of interest 
+formaldehyde <- exposure %>% 
+  filter(Pollutant.Name == "FORMALDEHYDE") %>% 
+  group_by(County) %>% 
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+  ungroup()
+# subtracting entire state
+formaldehyde <- formaldehyde[-34,]
+# adding columns that sum all of the nonroad and onroad exposures for each county 
+# formaldehyde dataframe still has all of the exposure activities so it can be used for othe analysis if we want 
+formaldehyde <- formaldehyde %>% 
+  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+# joining urban/rural column 
+formaldehyde_select <- left_join(formaldehyde, urban_rural, by = "County")
+# selecting necessary columns 
+formaldehyde_select <- formaldehyde_select %>% 
+  select(County, Population, Total.Exposure.Conc, Onroad_total:URBAN_RURAL) 
+# joining with census data 
+formaldehyde_complete <- left_join(formaldehyde_select, census_select, by = "County")
+# making county into factor
+formaldehyde_complete$County <- as.factor(formaldehyde_complete$County)
+
+## Benzene 
+benzene <- exposure %>% 
+  filter(Pollutant.Name == "BENZENE") %>% 
+  group_by(County) %>% 
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+  ungroup()
+# subtracting entire state
+benzene <- benzene[-34,]
+# adding columns that sum all of the nonroad and onroad exposures for each county 
+benzene <- benzene %>% 
+  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+# joining urban/rural column 
+benzene_select <- left_join(benzene, urban_rural, by = "County")
+# selecting necessary columns 
+benzene_select <- benzene_select %>% 
+  select(County, Population, Total.Exposure.Conc, Onroad_total:URBAN_RURAL) 
+# joining with census data 
+benzene_complete <- left_join(benzene_select, census_select, by = "County") 
+# making county into factor 
+benzene_complete$County <- as.factor(benzene_complete$County)
+
+## Diesel 
+diesel <- exposure %>% 
+  filter(Pollutant.Name == "DIESEL PM") %>% 
+  group_by(County) %>% 
+  summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
+  ungroup()
+# subtracting entire state
+diesel <- diesel[-34,]
+# adding columns that sum all of the nonroad and onroad exposures for each county 
+diesel <- diesel %>% 
+  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+# joining urban/rural column 
+diesel_select <- left_join(diesel, urban_rural, by = "County")
+# selecting necessary columns 
+diesel_select <- diesel_select %>% 
+  select(County, Population, Total.Exposure.Conc, Onroad_total:URBAN_RURAL)
+  
+# joining with census data 
+diesel_complete <- left_join(diesel_select, census_select, by = "County") 
+diesel_complete$County <- as.factor(diesel_complete$County)
+
+## Can still join the cancer data in if we want to 
+
+```
+
+## Exploratory Figures: 
+
+## Analysis: 
+### Formaldehyde Model 
+```{r}
+# Visualizing the relationship between response and descriptor variables 
+(scatter_population <- ggplot(formaldehyde_complete, aes(x = Population, y = Total.Exposure.Conc)) + 
+  geom_point())
+(scatter_income <- ggplot(formaldehyde_complete, aes(x = `Median Family Income (Dollars)`, y = Total.Exposure.Conc)) + 
+    geom_point())
+(scatter_urban <- ggplot(formaldehyde_complete, aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
+    geom_point())
+(scatter_density <- ggplot(formaldehyde_complete, aes(x = `Population Density (Persons Per SqMile)`, y = Total.Exposure.Conc)) +
+    geom_point())
+(scatter_unemployment <- ggplot(formaldehyde_complete, aes(x =`Unemployment(Percent)`, y = Total.Exposure.Conc)) + 
+    geom_point())
+
+
+## workflow for models 
+# 1. Colinearity (cannot include the variables that have a pearsons R greater than 0.6)
+# 2. creating models 
+# 3. interpreting results 
+
+```
+
+### Benzene Model 
+```{r}
+
+```
+
+# Diesel Model 
+```{r}
+
+```
 
 ```{r}
 
