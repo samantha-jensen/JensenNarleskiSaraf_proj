@@ -54,7 +54,10 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 |                               | Airports (point source)            |                                            |                       |                     
 |                               | Railroads (point source)           |                                            |                       |                       
 |                               | All Other Non-Road Equipment       |                                            |                       |                       
-]
+
+"On Road" and "Non-Road" refer to mobile sources that emit air pollutants. "On Road" references mobile sources on the U.S. highway system that transport either passengers or freight. This includes passenger cars and light trucks (i.e. "light duty vehicles"); semi-trucks, RVs, delivery trucks, and buses (i.e. "heavy duty vehicles"); and each type of vehicle is separated by what type of fuel they use, gas or diesel. These types of vehicles are further categorized to "on-netork," or in motion, and "off-netork," or idle, as well as "refueling," or any vapor/spillage from fueling refills, or "hoteling," which is specific to heavy duty vehicles idling.
+
+"Non-Road" references mobile sources that aren't on the U.S. highway system. This can range from recreational vehicles like snowcraft, boats, ATVs, dirt bikes to industrial/agricultural equipment and other forms of transportation like airports, railines ("railroads" and "locomotives"), and marine vessels. Marine vessels are categorized by engine size, with C1 and C2 considered smaller and C3 considered larger, as well as by "underway", or not anchored.
 
 ```{r}
 
