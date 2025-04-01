@@ -59,6 +59,8 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 
 "Non-Road" references mobile sources that aren't on the U.S. highway system. This can range from recreational vehicles like snowcraft, boats, ATVs, dirt bikes to industrial/agricultural equipment and other forms of transportation like airports, railines ("railroads" and "locomotives"), and marine vessels. Marine vessels are categorized by engine size, with C1 and C2 considered smaller and C3 considered larger, as well as by "underway", or not anchored.
 
+"Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
+
 ```{r}
 
 # Seperating out potential VOCs that are considered carcinogens
