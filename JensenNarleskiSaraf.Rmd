@@ -14,8 +14,6 @@ next steps:
 - find NC air quality standards for selected pollutants 
 
 
-
-
 # Setup
 
 ```{r}
