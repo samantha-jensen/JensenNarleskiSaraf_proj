@@ -13,7 +13,14 @@ next steps:
 - sorting columns into categories 
 - find NC air quality standards for selected pollutants 
 
+Unemployment Data: 
+https://hdpulse.nimhd.nih.gov/data-portal/social/table?age=916&age_options=age25_1&demo=00012&demo_options=education_3&race=00&race_options=race_7&sex=0&sex_options=sexboth_1&socialtopic=090&socialtopic_options=social_6&statefips=37&statefips_options=area_states
 
+Population Density: 
+https://beautifydata.com/united-states-population/census/2020/population-density-by-county/north-carolina
+
+Income: 
+https://hdpulse.nimhd.nih.gov/data-portal/social/table?age=001&age_options=ageall_1&demo=00010&demo_options=income_3&race=00&race_options=race_7&sex=0&sex_options=sexboth_1&socialtopic=030&socialtopic_options=social_6&statefips=37&statefips_options=area_states
 # Setup
 
 ```{r}
