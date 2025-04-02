@@ -33,9 +33,9 @@ library(knitr)
 # Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
 # Loading in dataset with urban/rural classification for each county in NC 
-urban_rural <- read_xlsx("urban_rural.xlsx")
+urban_rural <- read.xlsx("urban_rural.xlsx")
 # dataset with unemployment and median family income 
-census <- read_xlsx("census_combined.xlsx")
+census <- read.xlsx("census_combined.xlsx")
 
 
 ```
@@ -71,20 +71,69 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 
 "Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
 
+# Data Wrangling & Tidying 
+
 ```{r}
-# making rural/urban into a factor 
+
+# Select columns and rename for clarity
+exposure_df <- exposure %>%
+  select(County, Population, Pollutant.Name, Total.Exposure.Conc,
+         OR.LightDuty.OffNetwork.Gas.Exposure.Conc,
+         OR.LightDuty.OffNetwork.Diesel.Exposure.Conc,
+         OR.HeavyDuty.OffNetwork.Gas.Exposure.Conc,
+         OR.HeavyDuty.OffNetwork.Diesel.Exposure.Conc,
+         OR.HeavyDuty.OnNetwork.Diesel.Exposure.Conc,
+         OR.LightDuty.OnNetwork.Gas.Exposure.Conc,
+         OR.LightDuty.OnNetwork.Diesel.Exposure.Conc,
+         OR.HeavyDuty.OnNetwork.Gas.Exposure.Conc,
+         OR.HeavyDuty.Hoteling.Exposure.Conc,
+         OR.Refueling.Exposure.Conc,
+         NR.Recreational.inc.PleasureCraft.Exposure.Conc,
+         NR.Construction.Exposure.Conc,
+         NR.Agriculture.Exposure.Conc,
+         NR.CommercialEquipment.Exposure.Conc,
+         NR.Locomotives.Exposure.Conc,
+         NR.Point.Airports.Exposure.Conc,
+         NR..Point.Railyards.Exposure.Conc) %>%
+  rename("OR.Light.Off.Gas" = OR.LightDuty.OffNetwork.Gas.Exposure.Conc,
+         "OR.Light.Off.Diesel" = OR.LightDuty.OffNetwork.Diesel.Exposure.Conc,
+         "OR.Heavy.Off.Gas" = OR.HeavyDuty.OffNetwork.Gas.Exposure.Conc,
+         "OR.Heavy.Off.Diesel" = OR.HeavyDuty.OffNetwork.Diesel.Exposure.Conc,
+         "OR.Light.On.Gas" = OR.LightDuty.OnNetwork.Gas.Exposure.Conc,
+         "OR.Light.On.Diesel" = OR.LightDuty.OnNetwork.Diesel.Exposure.Conc,
+         "OR.Heavy.On.Gas" = OR.HeavyDuty.OnNetwork.Gas.Exposure.Conc,
+         "OR.Heavy.On.Diesel" = OR.HeavyDuty.OnNetwork.Diesel.Exposure.Conc,
+         "OR.Heavy.Idling" = OR.HeavyDuty.Hoteling.Exposure.Conc,
+         "OR.Refueling" = OR.Refueling.Exposure.Conc,
+         "NR.Recreational.Vehicles" = 
+           NR.Recreational.inc.PleasureCraft.Exposure.Conc,
+         "NR.Construction" = NR.Construction.Exposure.Conc,
+         "NR.Agriculture" = NR.Agriculture.Exposure.Conc,
+         "NR.Commerical.Equip" = NR.CommercialEquipment.Exposure.Conc,
+         "NR.Locomotives" = NR.Locomotives.Exposure.Conc,
+         "NR.Airpoints" = NR.Point.Airports.Exposure.Conc,
+         "NR.Railyards" = NR..Point.Railyards.Exposure.Conc)
+
+```
+
+```{r}
+# making rural/urban data into a factor 
 urban_rural$URBAN_RURAL <- as.factor(urban_rural$URBAN_RURAL)
 # filtering census data 
 census_select <- census %>% 
-  select(County, `Median Family Income (Dollars)`:`Population Density (Persons Per SqMile)`)
+  select(County, 
+         `Median Family Income (Dollars)`:`Population Density 
+         (Persons Per SqMile)`)
 # making income a numeric class 
 census_select$`Median Family Income (Dollars)` <- as.numeric(gsub("[^0-9]", "", 
                                 census_select$`Median Family Income (Dollars)`))
-census_select$`Population Density (Persons Per SqMile)` <-  as.numeric(gsub("[^0-9,.]", "", 
-                                census_select$`Population Density (Persons Per SqMile)`))
+census_select$`Population Density (Persons Per SqMile)` <-  as.numeric(
+  gsub("[^0-9,.]", "", census_select$`Population Density (Persons Per SqMile)`))
+```
 
-# making datasets for the Pollutants of interest 
-formaldehyde <- exposure %>% 
+```{r}
+# Making datasets for the Pollutants of interest 
+formaldehyde <- exposure_df %>% 
   filter(Pollutant.Name == "FORMALDEHYDE") %>% 
   group_by(County) %>% 
   summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
@@ -92,10 +141,14 @@ formaldehyde <- exposure %>%
 # subtracting entire state
 formaldehyde <- formaldehyde[-34,]
 # adding columns that sum all of the nonroad and onroad exposures for each county 
-# formaldehyde dataframe still has all of the exposure activities so it can be used for othe analysis if we want 
+# formaldehyde dataframe still has all of the exposure activities so it can be 
+# used for other analysis if we want 
 formaldehyde <- formaldehyde %>% 
-  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
-  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+  mutate(Onroad_total = select(., OR.Light.Off.Gas:OR.Refueling) %>% 
+      rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.Vehicles:NR.Railyards) %>% 
+      rowSums(na.rm = TRUE)) 
+
 # joining urban/rural column 
 formaldehyde_select <- left_join(formaldehyde, urban_rural, by = "County")
 # selecting necessary columns 
@@ -105,6 +158,10 @@ formaldehyde_select <- formaldehyde_select %>%
 formaldehyde_complete <- left_join(formaldehyde_select, census_select, by = "County")
 # making county into factor
 formaldehyde_complete$County <- as.factor(formaldehyde_complete$County)
+
+```
+
+```{r}
 
 ## Benzene 
 benzene <- exposure %>% 
@@ -116,8 +173,11 @@ benzene <- exposure %>%
 benzene <- benzene[-34,]
 # adding columns that sum all of the nonroad and onroad exposures for each county 
 benzene <- benzene %>% 
-  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
-  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+  mutate(Onroad_total = select(., OR.Light.Off.Gas:OR.Refueling) %>% 
+           rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.Vehicles:NR.Railyards) %>% 
+           rowSums(na.rm = TRUE)) 
+
 # joining urban/rural column 
 benzene_select <- left_join(benzene, urban_rural, by = "County")
 # selecting necessary columns 
@@ -127,6 +187,10 @@ benzene_select <- benzene_select %>%
 benzene_complete <- left_join(benzene_select, census_select, by = "County") 
 # making county into factor 
 benzene_complete$County <- as.factor(benzene_complete$County)
+
+```
+
+```{r}
 
 ## Diesel 
 diesel <- exposure %>% 
@@ -138,8 +202,13 @@ diesel <- exposure %>%
 diesel <- diesel[-34,]
 # adding columns that sum all of the nonroad and onroad exposures for each county 
 diesel <- diesel %>% 
-  mutate(Onroad_total = select(., OR.LightDuty.OffNetwork.Gas.Exposure.Conc:OR.HeavyDuty.Hoteling.Exposure.Conc) %>% rowSums(na.rm = TRUE)) %>% 
-  mutate(Nonroad_total = select(., NR.Recreational.inc.PleasureCraft.Exposure.Conc:NR..Point.Railyards.Exposure.Conc) %>% rowSums(na.rm = TRUE)) 
+  mutate(
+    Onroad_total = 
+      select(., OR.Light.Off.Gas:OR.Refueling) %>% 
+      rowSums(na.rm = TRUE)) %>% 
+  mutate(Nonroad_total = select(., NR.Recreational.Vehicles:NR.Railyards) %>% 
+           rowSums(na.rm = TRUE)) 
+
 # joining urban/rural column 
 diesel_select <- left_join(diesel, urban_rural, by = "County")
 # selecting necessary columns 
@@ -186,82 +255,6 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 
 # Diesel Model 
 ```{r}
-
-```
-
-```{r}
-
-# Seperating out potential VOCs that are considered carcinogens
-carcinogens <- exposure %>%
-  filter(Pollutant.Name %in% c("FORMALDEHYDE", "BENZENE", "TOULENE", 
-                               "CARBON TETRACHLORIDE", "CARBON DISULFIDE", 
-                               "1,3-BUTADIENE", "1,4-DICHLOROBENZENE"),
-         FIPS == "37063")
-
-carcinogens_summary <- carcinogens %>%
-  group_by(Pollutant.Name) %>%
-  summarise(average_exposure = mean(Total.Exposure.Conc, na.rm = TRUE)) %>%
-  ungroup()
-
-```
-
-# Initial Figures 
-
-```{r}
-
-exposure_fig1 <- ggplot() +
-  geom_jitter(data = carcinogens,
-              aes(x = 1, y = Total.Exposure.Conc, color = "maroon2"),
-              alpha = 0.7) +
-  geom_point(data = carcinogens_summary,
-             aes(x = 1, y = average_exposure), 
-             size = 4,
-             color = "darkred") +
-  facet_wrap(~Pollutant.Name, scales = "free_y") +
-  labs(title = "Air Exposure Concentrations of Carcinogenic VOCs in Durham, NC",
-       y = "Total Exposure Concentration (mg/m3)",
-       x = NULL,
-       caption = "The above graphs display the varying exposure concentrations 
-       of recorded volatilie organic compounds (VOCs) in the air during 2014 in 
-       Durham, North Carolina. These specific VOCs are 
-       known to potentially increase the risk of cancer, making them 
-       carcinogens.") +
-  theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        plot.caption = element_text(hjust = 0.5),
-        plot.title = element_text(hjust = 0.5, face = "bold", color = "darkred"),
-        legend.position = "none")
-
-exposure_fig1
-```
-
-```{r}
-carcinogens_activity_summary <- carcinogens %>%
-  group_by(Pollutant.Name) %>% 
-  summarise(across(c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc), mean))
-
-carcinogens_long <- pivot_longer(carcinogens_activity_summary, cols = c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc),  names_to = "Variable", values_to = "Value")
-carcinogens_long <- carcinogens_long %>% 
-  filter(Variable == "NR.CommercialLawnGarden.Exposure.Conc"| Variable == 
-           "NR.ResidentialLawnGarden.Exposure.Conc"| Variable == 
-           "NR.Construction.Exposure.Conc"| Variable ==
-           "NR.CommercialEquipment.Exposure.Conc")
-carcinogens_long <- carcinogens_long %>% 
-  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
-
-carcinogens_activity_summary <- carcinogens_activity_summary %>% 
-  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
-
-
-figure3 <- ggplot(carcinogens_long, aes(x = Pollutant.Name, y = Value)) + 
-  geom_point() + 
-  facet_wrap(~Variable) + 
-  labs(x = "Pollutant Name", 
-       y = "Exposure Concentration (mg/m3)", 
-       title = "Non-Zero Carcinogen Exposure Levels", 
-       caption = "This figure depicts the mean carcinogen exposure levels in Durham County from certain activities.")
-figure3
 
 ```
 

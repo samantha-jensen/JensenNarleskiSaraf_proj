@@ -1,0 +1,101 @@
+---
+title: "exploratoryfigures"
+author: "Jaclyn Narleski"
+date: "2025-04-02"
+output: html_document
+---
+
+```{r}
+
+# Load packages
+library(tidyverse)
+library(here)
+library(knitr)
+
+# Load data
+exposure <- read.csv("ExposureConcentrationsRaw.csv")
+# Loading in dataset with urban/rural classification for each county in NC 
+urban_rural <- read_xlsx("urban_rural.xlsx")
+# dataset with unemployment and median family income 
+census <- read_xlsx("census_combined.xlsx")
+
+```
+
+```{r}
+
+# Seperating out potential VOCs that are considered carcinogens
+carcinogens <- exposure %>%
+  filter(Pollutant.Name %in% c("FORMALDEHYDE", "BENZENE", "TOULENE", 
+                               "CARBON TETRACHLORIDE", "CARBON DISULFIDE", 
+                               "1,3-BUTADIENE", "1,4-DICHLOROBENZENE"),
+         FIPS == "37063")
+
+carcinogens_summary <- carcinogens %>%
+  group_by(Pollutant.Name) %>%
+  summarise(average_exposure = mean(Total.Exposure.Conc, na.rm = TRUE)) %>%
+  ungroup()
+
+```
+
+# Initial Figures 
+
+```{r}
+
+exposure_fig1 <- ggplot() +
+  geom_jitter(data = carcinogens,
+              aes(x = 1, y = Total.Exposure.Conc, color = "maroon2"),
+              alpha = 0.7) +
+  geom_point(data = carcinogens_summary,
+             aes(x = 1, y = average_exposure), 
+             size = 4,
+             color = "darkred") +
+  facet_wrap(~Pollutant.Name, scales = "free_y") +
+  labs(title = "Air Exposure Concentrations of Carcinogenic VOCs in Durham, NC",
+       y = "Total Exposure Concentration (mg/m3)",
+       x = NULL,
+       caption = "The above graphs display the varying exposure concentrations 
+       of recorded volatilie organic compounds (VOCs) in the air during 2014 in 
+       Durham, North Carolina. These specific VOCs are 
+       known to potentially increase the risk of cancer, making them 
+       carcinogens.") +
+  theme_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        plot.caption = element_text(hjust = 0.5),
+        plot.title = element_text(hjust = 0.5, face = "bold", color = "darkred"),
+        legend.position = "none")
+
+exposure_fig1
+
+```
+
+```{r}
+
+carcinogens_activity_summary <- carcinogens %>%
+  group_by(Pollutant.Name) %>% 
+  summarise(across(c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc), mean))
+
+carcinogens_long <- pivot_longer(carcinogens_activity_summary, cols = c(PT.StationaryPoint.Exposure.Conc:NP.AgricultureLivestock.Conc),  names_to = "Variable", values_to = "Value")
+carcinogens_long <- carcinogens_long %>% 
+  filter(Variable == "NR.CommercialLawnGarden.Exposure.Conc"| Variable == 
+           "NR.ResidentialLawnGarden.Exposure.Conc"| Variable == 
+           "NR.Construction.Exposure.Conc"| Variable ==
+           "NR.CommercialEquipment.Exposure.Conc")
+carcinogens_long <- carcinogens_long %>% 
+  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
+
+carcinogens_activity_summary <- carcinogens_activity_summary %>% 
+  filter(Pollutant.Name == "1,3-BUTADIENE"| Pollutant.Name == "BENZENE"| Pollutant.Name =="FORMALDEHYDE")
+
+
+figure3 <- ggplot(carcinogens_long, aes(x = Pollutant.Name, y = Value)) + 
+  geom_point() + 
+  facet_wrap(~Variable) + 
+  labs(x = "Pollutant Name", 
+       y = "Exposure Concentration (mg/m3)", 
+       title = "Non-Zero Carcinogen Exposure Levels", 
+       caption = "This figure depicts the mean carcinogen exposure levels in Durham County from certain activities.")
+figure3
+
+```
+
