@@ -164,7 +164,7 @@ formaldehyde_complete$County <- as.factor(formaldehyde_complete$County)
 ```{r}
 
 ## Benzene 
-benzene <- exposure %>% 
+benzene <- exposure_df %>% 
   filter(Pollutant.Name == "BENZENE") %>% 
   group_by(County) %>% 
   summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
@@ -193,7 +193,7 @@ benzene_complete$County <- as.factor(benzene_complete$County)
 ```{r}
 
 ## Diesel 
-diesel <- exposure %>% 
+diesel <- exposure_df %>% 
   filter(Pollutant.Name == "DIESEL PM") %>% 
   group_by(County) %>% 
   summarise(across(where(is.numeric), sum, na.rm = TRUE)) %>% 
