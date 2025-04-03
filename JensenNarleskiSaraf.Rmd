@@ -29,21 +29,23 @@ https://hdpulse.nimhd.nih.gov/data-portal/social/table?age=001&age_options=ageal
 library(tidyverse)
 library(here)
 library(knitr)
+library(readxl)
 
 # Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
 # Loading in dataset with urban/rural classification for each county in NC 
-urban_rural <- read.xlsx("urban_rural.xlsx")
+urban_rural <- read_excel("urban_rural.xlsx")
 # dataset with unemployment and median family income 
-census <- read.xlsx("census_combined.xlsx")
+census <- read_excel("census_combined.xlsx")
 
 
 ```
+
 # Methods
 
 ## Data Source(s)
 
-## Data Tidying
+## Data Wrangling & Tidying
 
 The raw dataset for exposure concentrations of air toxics in North Carolina contains the following information for each measurement of exposure: EPA region, county, FIPS code, FIPS tract, population, pollutant name, total exposure concentration, and several different sources that contributed to that total exposure concentration. The EPA divides these sources into different categories, as displayed below in Figure 1: 
 
@@ -71,7 +73,9 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 
 "Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
 
-# Data Wrangling & Tidying 
+### Data Tidying & Wrangling Code
+
+#### Exposure Data
 
 ```{r}
 
@@ -112,27 +116,32 @@ exposure_df <- exposure %>%
          "NR.Commerical.Equip" = NR.CommercialEquipment.Exposure.Conc,
          "NR.Locomotives" = NR.Locomotives.Exposure.Conc,
          "NR.Airpoints" = NR.Point.Airports.Exposure.Conc,
-         "NR.Railyards" = NR..Point.Railyards.Exposure.Conc)
+         "NR.Railyards" = NR..Point.Railyards.Exposure.Conc) %>%
+  mutate(County = as.factor(County))
 
 ```
 
+#### Urban/Rural & Census Data 
+
 ```{r}
-# making rural/urban data into a factor 
+# Making rural/urban data into a factor 
 urban_rural$URBAN_RURAL <- as.factor(urban_rural$URBAN_RURAL)
-# filtering census data 
+# Filtering census data 
 census_select <- census %>% 
   select(County, 
-         `Median Family Income (Dollars)`:`Population Density 
-         (Persons Per SqMile)`)
-# making income a numeric class 
+         `Median Family Income (Dollars)`:
+           `Population Density (Persons Per SqMile)`)
+# Making income a numeric class 
 census_select$`Median Family Income (Dollars)` <- as.numeric(gsub("[^0-9]", "", 
                                 census_select$`Median Family Income (Dollars)`))
 census_select$`Population Density (Persons Per SqMile)` <-  as.numeric(
   gsub("[^0-9,.]", "", census_select$`Population Density (Persons Per SqMile)`))
 ```
 
+#### Formaldehyde Data
+
 ```{r}
-# Making datasets for the Pollutants of interest 
+
 formaldehyde <- exposure_df %>% 
   filter(Pollutant.Name == "FORMALDEHYDE") %>% 
   group_by(County) %>% 
@@ -155,15 +164,17 @@ formaldehyde_select <- left_join(formaldehyde, urban_rural, by = "County")
 formaldehyde_select <- formaldehyde_select %>% 
   select(County, Population, Total.Exposure.Conc, Onroad_total:URBAN_RURAL) 
 # joining with census data 
-formaldehyde_complete <- left_join(formaldehyde_select, census_select, by = "County")
+formaldehyde_complete <- left_join(formaldehyde_select, 
+                                   census_select, by = "County")
 # making county into factor
 formaldehyde_complete$County <- as.factor(formaldehyde_complete$County)
 
 ```
 
+#### Benzene Data
+
 ```{r}
 
-## Benzene 
 benzene <- exposure_df %>% 
   filter(Pollutant.Name == "BENZENE") %>% 
   group_by(County) %>% 
@@ -189,6 +200,8 @@ benzene_complete <- left_join(benzene_select, census_select, by = "County")
 benzene_complete$County <- as.factor(benzene_complete$County)
 
 ```
+
+#### Diesel Data
 
 ```{r}
 
@@ -223,23 +236,53 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 
 ```
 
-## Exploratory Figures: 
+# Analysis
 
-## Analysis: 
-### Formaldehyde Model 
+#### Formaldehyde Model 
+
 ```{r}
+
 # Visualizing the relationship between response and descriptor variables 
-(scatter_population <- ggplot(formaldehyde_complete, aes(x = Population, y = Total.Exposure.Conc)) + 
+(scatter_population <- ggplot(formaldehyde_complete, 
+                              aes(x = Population, y = Total.Exposure.Conc)) + 
   geom_point())
-(scatter_income <- ggplot(formaldehyde_complete, aes(x = `Median Family Income (Dollars)`, y = Total.Exposure.Conc)) + 
-    geom_point())
-(scatter_urban <- ggplot(formaldehyde_complete, aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point())
-(scatter_density <- ggplot(formaldehyde_complete, aes(x = `Population Density (Persons Per SqMile)`, y = Total.Exposure.Conc)) +
-    geom_point())
-(scatter_unemployment <- ggplot(formaldehyde_complete, aes(x =`Unemployment(Percent)`, y = Total.Exposure.Conc)) + 
+
+(scatter_income <- ggplot(formaldehyde_complete, 
+                          aes(x = `Median Family Income (Dollars)`, 
+                              y = Total.Exposure.Conc)) + 
     geom_point())
 
+(scatter_urban <- ggplot(formaldehyde_complete, 
+                         aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
+    geom_point())
+
+(scatter_density <- ggplot(formaldehyde_complete, 
+                           aes(x = `Population Density (Persons Per SqMile)`, 
+                               y = Total.Exposure.Conc)) +
+    geom_point())
+
+(scatter_unemployment <- ggplot(formaldehyde_complete, 
+                                aes(x =`Unemployment(Percent)`, 
+                                    y = Total.Exposure.Conc)) + 
+    geom_point())
+
+# Perform correlation tests to test for collinearity
+
+cor.test(formaldehyde_complete$Population, 
+         formaldehyde_complete$`Median Family Income (Dollars)`) 
+# p < 0.01, cor = 0.4802
+
+cor.test(formaldehyde_complete$Population, 
+         formaldehyde_complete$`Population Density (Persons Per SqMile)`) 
+# p < 0.01, cor = 0.9144
+
+cor.test(formaldehyde_complete$`Unemployment(Percent)`, 
+         formaldehyde_complete$`Median Family Income (Dollars)`)
+# p < 0.01, cor = -0.4911
+
+cor.test(formaldehyde_complete$`Median Family Income (Dollars)`,
+         formaldehyde_complete$`Population Density (Persons Per SqMile)`)
+# p < 0.01, cor = 0.402
 
 ## workflow for models 
 # 1. Colinearity (cannot include the variables that have a pearsons R greater than 0.6)
@@ -248,13 +291,78 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 
 ```
 
-### Benzene Model 
+#### Benzene Model 
+
 ```{r}
+
+(scatter_population <- ggplot(benzene_complete, 
+                              aes(x = Population, y = Total.Exposure.Conc)) + 
+  geom_point())
+
+(scatter_income <- ggplot(benzene_complete, 
+                          aes(x = `Median Family Income (Dollars)`, 
+                              y = Total.Exposure.Conc)) + 
+    geom_point())
+
+(scatter_urban <- ggplot(benzene_complete, 
+                         aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
+    geom_point())
+
+(scatter_density <- ggplot(benzene_complete, 
+                           aes(x = `Population Density (Persons Per SqMile)`, 
+                               y = Total.Exposure.Conc)) +
+    geom_point())
+
+(scatter_unemployment <- ggplot(benzene_complete, 
+                                aes(x =`Unemployment(Percent)`, 
+                                    y = Total.Exposure.Conc)) + 
+    geom_point())
+
+# Perform correlation tests to test for collinearity
+
+cor.test(diesel_complete$Population, 
+         diesel_complete$`Median Family Income (Dollars)`) 
+# p < 0.01, cor = 0.4802
+
+cor.test(diesel_complete$Population, 
+         diesel_complete$`Population Density (Persons Per SqMile)`) 
+# p < 0.01, cor = 0.9144
+
+cor.test(diesel_complete$`Unemployment(Percent)`, 
+         diesel_complete$`Median Family Income (Dollars)`)
+# p < 0.01, cor = -0.4911
+
+cor.test(diesel_complete$`Median Family Income (Dollars)`,
+         diesel_complete$`Population Density (Persons Per SqMile)`)
+# p < 0.01, cor = 0.402
 
 ```
 
 # Diesel Model 
 ```{r}
+
+(scatter_population <- ggplot(diesel_complete, 
+                              aes(x = Population, y = Total.Exposure.Conc)) + 
+  geom_point())
+
+(scatter_income <- ggplot(diesel_complete, 
+                          aes(x = `Median Family Income (Dollars)`, 
+                              y = Total.Exposure.Conc)) + 
+    geom_point())
+
+(scatter_urban <- ggplot(diesel_complete, 
+                         aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
+    geom_point())
+
+(scatter_density <- ggplot(diesel_complete, 
+                           aes(x = `Population Density (Persons Per SqMile)`, 
+                               y = Total.Exposure.Conc)) +
+    geom_point())
+
+(scatter_unemployment <- ggplot(diesel_complete, 
+                                aes(x =`Unemployment(Percent)`, 
+                                    y = Total.Exposure.Conc)) + 
+    geom_point())
 
 ```
 
