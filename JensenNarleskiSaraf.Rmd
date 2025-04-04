@@ -283,23 +283,22 @@ cor.test(formaldehyde_complete$`Median Family Income (Dollars)`,
          formaldehyde_complete$`Population Density (Persons Per SqMile)`)
 # p < 0.01, cor = 0.402
 
-F_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, formaldehyde_complete)
+# Generate regression model(s)
+F_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+               formaldehyde_complete)
 summary(F_model1)
 plot(F_model1)
 
 formaldehyde_nooutlier <- formaldehyde_complete[-92,]
-model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, formaldehyde_nooutlier)
+model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+                       formaldehyde_nooutlier)
 summary(model1_nooutlier)
 
-F_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` + URBAN_RURAL, formaldehyde_complete)
+F_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` + 
+                 URBAN_RURAL, formaldehyde_complete)
 summary(F_model2)
 plot(F_model2)
 
-
-## workflow for models 
-# 1. Colinearity (cannot include the variables that have a pearsons R greater than 0.6)
-# 2. creating models 
-# 3. interpreting results 
 
 ```
 
@@ -331,7 +330,6 @@ plot(F_model2)
     geom_point())
 
 # Perform correlation tests to test for collinearity
-
 cor.test(diesel_complete$Population, 
          diesel_complete$`Median Family Income (Dollars)`) 
 # p < 0.01, cor = 0.4802
@@ -348,6 +346,23 @@ cor.test(diesel_complete$`Median Family Income (Dollars)`,
          diesel_complete$`Population Density (Persons Per SqMile)`)
 # p < 0.01, cor = 0.402
 
+# Generate regression models
+B_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+               benzene_complete)
+summary(B_model1)
+plot(B_model1)
+
+benzene_nooutlier <- benzene_complete[-60,]
+benzene_nooutlier <- benzene_nooutlier[-92,]
+Bmodel1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+                       benzene_nooutlier)
+summary(Bmodel1_nooutlier)
+plot(Bmodel1_nooutlier)
+
+B_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` +
+                 URBAN_RURAL, benzene_complete)
+summary(B_model2)
+plot(B_model2)
 ```
 
 # Diesel Model 
