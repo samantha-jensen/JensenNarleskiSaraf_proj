@@ -289,16 +289,32 @@ F_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL,
 summary(F_model1)
 plot(F_model1)
 
-formaldehyde_nooutlier <- formaldehyde_complete[-92,]
-model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
-                       formaldehyde_nooutlier)
-summary(model1_nooutlier)
-
 F_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` + 
                  URBAN_RURAL, formaldehyde_complete)
 summary(F_model2)
 plot(F_model2)
 
+formaldehyde_nooutlier <- formaldehyde_complete[-92,]
+formaldehyde_nooutlier <- formaldehyde_nooutlier[-60,]
+model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+                       formaldehyde_nooutlier)
+summary(model1_nooutlier)
+plot(model1_nooutlier)
+
+model2_nooutlier <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` + 
+                 URBAN_RURAL, formaldehyde_nooutlier)
+summary(model2_nooutlier)
+plot(model2_nooutlier)
+
+model3 <- lm(Total.Exposure.Conc ~ URBAN_RURAL + `Median Family Income (Dollars)` + Population, formaldehyde_nooutlier)
+summary(model3)
+plot(model3)
+
+AIC1 <- AIC(model1_nooutlier)
+AIC2 <- AIC(model2_nooutlier)
+AIC3 <- AIC(model3)
+
+# Model 1 without outliers has the lowest AIC value and is the one that I will write the results about. 
 
 ```
 
