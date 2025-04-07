@@ -237,6 +237,34 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 
 # Analysis
 
+```{r}
+
+formaldehyde_onroad <- formaldehyde_complete %>%
+  ggplot(aes(x = Onroad_total)) +
+  geom_histogram() 
+
+formaldehyde_onroad
+
+formaldehyde_nonroad <- formaldehyde_complete %>%
+  ggplot(aes(x = Nonroad_total)) +
+  geom_histogram() 
+
+formaldehyde_nonroad
+
+benzene_onroad <- benzene_complete %>%
+  ggplot(aes(x = Onroad_total)) +
+  geom_histogram() 
+
+benzene_onroad
+
+benzene_nonroad <- benzene_complete %>%
+  ggplot(aes(x = Nonroad_total)) +
+  geom_histogram() 
+
+benzene_nonroad
+```
+
+
 #### Formaldehyde Model 
 
 ```{r}
@@ -301,12 +329,15 @@ model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL,
 summary(model1_nooutlier)
 plot(model1_nooutlier)
 
-model2_nooutlier <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` + 
-                 URBAN_RURAL, formaldehyde_nooutlier)
+model2_nooutlier <- lm(Total.Exposure.Conc ~ 
+                         `Population Density (Persons Per SqMile)` + 
+                         URBAN_RURAL, formaldehyde_nooutlier)
 summary(model2_nooutlier)
 plot(model2_nooutlier)
 
-model3 <- lm(Total.Exposure.Conc ~ URBAN_RURAL + `Median Family Income (Dollars)` + Population, formaldehyde_nooutlier)
+model3 <- lm(Total.Exposure.Conc ~ URBAN_RURAL + 
+               `Median Family Income (Dollars)` + 
+               Population, formaldehyde_nooutlier)
 summary(model3)
 plot(model3)
 
@@ -367,18 +398,22 @@ B_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL,
                benzene_complete)
 summary(B_model1)
 plot(B_model1)
+AIC(B_model1) # = 519.3985
 
 benzene_nooutlier <- benzene_complete[-60,]
 benzene_nooutlier <- benzene_nooutlier[-92,]
+
 Bmodel1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
                        benzene_nooutlier)
 summary(Bmodel1_nooutlier)
 plot(Bmodel1_nooutlier)
+AIC(Bmodel1_nooutlier) # = 447.2516
 
 B_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` +
                  URBAN_RURAL, benzene_complete)
 summary(B_model2)
 plot(B_model2)
+AIC(B_model2) # = 447.5436
 ```
 
 # Diesel Model 
