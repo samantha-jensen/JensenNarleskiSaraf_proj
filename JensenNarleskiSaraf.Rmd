@@ -21,6 +21,7 @@ https://beautifydata.com/united-states-population/census/2020/population-density
 
 Income: 
 https://hdpulse.nimhd.nih.gov/data-portal/social/table?age=001&age_options=ageall_1&demo=00010&demo_options=income_3&race=00&race_options=race_7&sex=0&sex_options=sexboth_1&socialtopic=030&socialtopic_options=social_6&statefips=37&statefips_options=area_states
+
 # Setup
 
 ```{r}
@@ -42,14 +43,6 @@ census <- read_excel("census_combined.xlsx")
 
 ```
 
-# Methods
-
-## Data Source(s)
-
-## Data Wrangling & Tidying
-
-The raw dataset for exposure concentrations of air toxics in North Carolina contains the following information for each measurement of exposure: EPA region, county, FIPS code, FIPS tract, population, pollutant name, total exposure concentration, and several different sources that contributed to that total exposure concentration. The EPA divides these sources into different categories, as displayed below in Figure 1: 
-
 Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 
 | On Road                       | Non-Road                           | Non-Point Stationary                       | Other                 |
@@ -68,20 +61,7 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 |                               | Railroads (point source)           |                                            |                       |                       
 |                               | All Other Non-Road Equipment       |                                            |                       |                       
 
-"On Road" and "Non-Road" refer to mobile sources that emit air pollutants. "On Road" references mobile sources on the U.S. highway system that transport either passengers or freight. This includes passenger cars and light trucks (i.e. "light duty vehicles"); semi-trucks, RVs, delivery trucks, and buses (i.e. "heavy duty vehicles"); and each type of vehicle is separated by what type of fuel they use, gas or diesel. These types of vehicles are further categorized to "on-netork," or in motion, and "off-netork," or idle, as well as "refueling," or any vapor/spillage from fueling refills, or "hoteling," which is specific to heavy duty vehicles idling.
-
-"Non-Road" references mobile sources that aren't on the U.S. highway system. This can range from recreational vehicles like snowcraft, boats, ATVs, dirt bikes to industrial/agricultural equipment and other forms of transportation like airports, railines ("railroads" and "locomotives"), and marine vessels. Marine vessels are categorized by engine size, with C1 and C2 considered smaller and C3 considered larger, as well as by "underway", or not anchored.
-
-"Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
-
-The Exposure dataset was subsetted to include activities that fell into the "On Road" and "Non Road" categories. From there, three datasets were created for the three pollutants of focus: Formaldehyde, Benzene and Diesel. The data wrangling for these three pollutants was identical. The exposure for each activity and the total exposure were summed in order to get have just one value for each column for the 100 counties in North Carolina. From here, we were able to join demographic data to each pollutant data set. The census dataset was created in Excel and has columns containing county wide unemployment rates, population density and Median Family Income. Additionally, a column was joined to each data set with the designation of each column as "Urban" or "Rural." This designation was obtained from the North Carolina Department of Health and Human Services, which listed 46 urban counties and 54 rural counties. 
-
-In order to answer our research questions, multiple linear models were created for each of the three pollutants. The methods for each analysis are outlined below: 
-
-Formaldehyde: 
-The first step of this analysis was to visualize the relationships between the response variable, Total Formaldehyde Concentration, and each of the independent variables(Figure #2?). Next, co-linearity tests were completed in order to determine which of the independent variables might have a linear relationship with each other and therefore be avoided in a model together. Colinearity tests with a Pearson's R value greater than 0.6 were flagged as variables that shouldn't be in a model together. In this case, Population and Population Density had a Pearson's R value of 0.91 indicating a strong linear correlation. Two initial models were run and outliers were removed based on Cook's Distance. These outliers corresponded to Mecklenburg and Wake Counties, which correspond to the counties with the two largest populations in North Carolina. The first model included Population and Urban/Rural as independent variables, and the second substituted Population Density instead of Population. The models were run again without the outliers, and a more complex model was run with Median Family Income, Population and Urban/Rural. An Akaike information criterion(AIC) test was run for these three models. Based on the results of the AIC, a model was chosen and the results of that model will be outlined in the Results section of this report. 
-
-### Data Tidying & Wrangling Code
+## Data Tidying & Wrangling Code
 
 #### Exposure Data
 
@@ -245,6 +225,8 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 
 # Analysis
 
+#### Summary Statistics 
+
 ```{r}
 # descriptive statistics for results section: 
 
@@ -265,35 +247,64 @@ mean_income <- mean(formaldehyde_complete$`Median Family Income (Dollars)`)
 sd_income <- sd(formaldehyde_complete$`Median Family Income (Dollars)`)
 mean_unemploy <- mean(formaldehyde_complete$`Unemployment(Percent)`)
 sd_unemploy <- sd(formaldehyde_complete$`Unemployment(Percent)`)
+
 ```
+
+#### Onroad & Nonroad Data
 
 ```{r}
 
 formaldehyde_onroad <- formaldehyde_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() 
+  geom_histogram() +
+  labs(title = "Formaldehyde Onroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
 
 formaldehyde_onroad
 
 formaldehyde_nonroad <- formaldehyde_complete %>%
   ggplot(aes(x = Nonroad_total)) +
-  geom_histogram() 
+  geom_histogram() +
+  labs(title = "Formaldehyde Nonroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
 
 formaldehyde_nonroad
 
 benzene_onroad <- benzene_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() 
+  geom_histogram() +
+  labs(title = "Benzene Onroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
 
 benzene_onroad
 
 benzene_nonroad <- benzene_complete %>%
   ggplot(aes(x = Nonroad_total)) +
-  geom_histogram() 
+  geom_histogram() +
+  labs(title = "Benzene Nonroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
 
 benzene_nonroad
-```
 
+diesel_onroad <- diesel_complete %>%
+  ggplot(aes(x = Onroad_total)) +
+  geom_histogram() +
+  labs(title = "Diesel Onroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
+
+diesel_nonroad <- diesel_complete %>%
+  ggplot(aes(x = Onroad_total)) +
+  geom_histogram() +
+  labs(title = "Diesel Nonroad Exposure Concentrations",
+       x = "Exposure Concentration (ug/m3)",
+       y = "Count")
+
+```
 
 #### Formaldehyde Model 
 
@@ -337,8 +348,6 @@ final_plot <- ((scatter_density + scatter_urban) /
   (scatter_population + scatter_unemployment) / scatter_income) + 
   plot_annotation(title = "Formaldehyde Concentrations vs. County Demographics")
 plot(final_plot)
-
-
 
 # Perform correlation tests to test for collinearity
 
@@ -423,21 +432,26 @@ AIC3 <- AIC(model3)
                                     y = Total.Exposure.Conc)) + 
     geom_point())
 
+final_plotB <- ((scatter_densityB + scatter_urbanB) / 
+  (scatter_populationB + scatter_unemploymentB) / scatter_incomeB) + 
+  plot_annotation(title = "Benzene Concentrations vs. County Demographics")
+plot(final_plotB)
+
 # Perform correlation tests to test for collinearity
-cor.test(diesel_complete$Population, 
-         diesel_complete$`Median Family Income (Dollars)`) 
+cor.test(benzene_complete$Population, 
+         benzene_complete$`Median Family Income (Dollars)`) 
 # p < 0.01, cor = 0.4802
 
-cor.test(diesel_complete$Population, 
-         diesel_complete$`Population Density (Persons Per SqMile)`) 
+cor.test(benzene_complete$Population, 
+         benzene_complete$`Population Density (Persons Per SqMile)`) 
 # p < 0.01, cor = 0.9144
 
-cor.test(diesel_complete$`Unemployment(Percent)`, 
-         diesel_complete$`Median Family Income (Dollars)`)
+cor.test(benzene_complete$`Unemployment(Percent)`, 
+         benzene_complete$`Median Family Income (Dollars)`)
 # p < 0.01, cor = -0.4911
 
-cor.test(diesel_complete$`Median Family Income (Dollars)`,
-         diesel_complete$`Population Density (Persons Per SqMile)`)
+cor.test(benzene_complete$`Median Family Income (Dollars)`,
+         benzene_complete$`Population Density (Persons Per SqMile)`)
 # p < 0.01, cor = 0.402
 
 # Generate regression models
