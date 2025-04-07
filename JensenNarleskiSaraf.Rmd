@@ -30,6 +30,7 @@ library(tidyverse)
 library(here)
 library(knitr)
 library(readxl)
+library(patchwork)
 
 # Load data
 exposure <- read.csv("ExposureConcentrationsRaw.csv")
@@ -72,6 +73,13 @@ Figure 1: National Air Toxics Assessment (NATA) Emission Sources
 "Non-Road" references mobile sources that aren't on the U.S. highway system. This can range from recreational vehicles like snowcraft, boats, ATVs, dirt bikes to industrial/agricultural equipment and other forms of transportation like airports, railines ("railroads" and "locomotives"), and marine vessels. Marine vessels are categorized by engine size, with C1 and C2 considered smaller and C3 considered larger, as well as by "underway", or not anchored.
 
 "Non-Point Stationary" refers to sources that aren't mobile or confined to single location. "Other" groups any other sources, including living organisms ("biogenics"), pollutants that form in the atmosphere from chemical reactions ("secondary"), and naturally-occurring emissions from human activity ("background").
+
+The Exposure dataset was subsetted to include activities that fell into the "On Road" and "Non Road" categories. From there, three datasets were created for the three pollutants of focus: Formaldehyde, Benzene and Diesel. The data wrangling for these three pollutants was identical. The exposure for each activity and the total exposure were summed in order to get have just one value for each column for the 100 counties in North Carolina. From here, we were able to join demographic data to each pollutant data set. The census dataset was created in Excel and has columns containing county wide unemployment rates, population density and Median Family Income. Additionally, a column was joined to each data set with the designation of each column as "Urban" or "Rural." This designation was obtained from the North Carolina Department of Health and Human Services, which listed 46 urban counties and 54 rural counties. 
+
+In order to answer our research questions, multiple linear models were created for each of the three pollutants. The methods for each analysis are outlined below: 
+
+Formaldehyde: 
+The first step of this analysis was to visualize the relationships between the response variable, Total Formaldehyde Concentration, and each of the independent variables(Figure #2?). Next, co-linearity tests were completed in order to determine which of the independent variables might have a linear relationship with each other and therefore be avoided in a model together. Colinearity tests with a Pearson's R value greater than 0.6 were flagged as variables that shouldn't be in a model together. In this case, Population and Population Density had a Pearson's R value of 0.91 indicating a strong linear correlation. Two initial models were run and outliers were removed based on Cook's Distance. These outliers corresponded to Mecklenburg and Wake Counties, which correspond to the counties with the two largest populations in North Carolina. The first model included Population and Urban/Rural as independent variables, and the second substituted Population Density instead of Population. The models were run again without the outliers, and a more complex model was run with Median Family Income, Population and Urban/Rural. An Akaike information criterion(AIC) test was run for these three models. Based on the results of the AIC, a model was chosen and the results of that model will be outlined in the Results section of this report. 
 
 ### Data Tidying & Wrangling Code
 
@@ -238,6 +246,28 @@ diesel_complete$County <- as.factor(diesel_complete$County)
 # Analysis
 
 ```{r}
+# descriptive statistics for results section: 
+
+mean_form <- mean(formaldehyde_complete$Total.Exposure.Conc)
+sd_form <- sd(formaldehyde_complete$Total.Exposure.Conc)
+mean_b <- mean(benzene_complete$Total.Exposure.Conc)
+sd_b <- sd(benzene_complete$Total.Exposure.Conc)
+mean_D <- mean(diesel_complete$Total.Exposure.Conc)
+sd_d <- sd(diesel_complete$Total.Exposure.Conc)
+
+mean_population <- mean(formaldehyde_complete$Population)
+sd_pop <- sd(formaldehyde_complete$Population)
+mean_population_density <- 
+  mean(formaldehyde_complete$`Population Density (Persons Per SqMile)`)
+sd_density <- 
+  sd(formaldehyde_complete$`Population Density (Persons Per SqMile)`)
+mean_income <- mean(formaldehyde_complete$`Median Family Income (Dollars)`)
+sd_income <- sd(formaldehyde_complete$`Median Family Income (Dollars)`)
+mean_unemploy <- mean(formaldehyde_complete$`Unemployment(Percent)`)
+sd_unemploy <- sd(formaldehyde_complete$`Unemployment(Percent)`)
+```
+
+```{r}
 
 formaldehyde_onroad <- formaldehyde_complete %>%
   ggplot(aes(x = Onroad_total)) +
@@ -272,26 +302,43 @@ benzene_nonroad
 # Visualizing the relationship between response and descriptor variables 
 (scatter_population <- ggplot(formaldehyde_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
-  geom_point())
+  geom_point() + 
+   labs(x = "Population", 
+        y = "ug/m3"))
 
 (scatter_income <- ggplot(formaldehyde_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+    labs(x = "Median Family Income ($)", 
+        y = "ug/m3"))
 
 (scatter_urban <- ggplot(formaldehyde_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+    labs(x = "Urban or Rural Designation", 
+        y = "ug/m3"))
 
 (scatter_density <- ggplot(formaldehyde_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
-    geom_point())
+    geom_point() + 
+    labs(x = "Population Density (Persons/sqMile)", 
+        y = "ug/m3"))
 
 (scatter_unemployment <- ggplot(formaldehyde_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+    labs(x = "Unemployment (%)", 
+        y = "ug/m3"))
+
+final_plot <- ((scatter_density + scatter_urban) / 
+  (scatter_population + scatter_unemployment) / scatter_income) + 
+  plot_annotation(title = "Formaldehyde Concentrations vs. County Demographics")
+plot(final_plot)
+
+
 
 # Perform correlation tests to test for collinearity
 
@@ -353,25 +400,25 @@ AIC3 <- AIC(model3)
 
 ```{r}
 
-(scatter_population <- ggplot(benzene_complete, 
+(scatter_populationB <- ggplot(benzene_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
   geom_point())
 
-(scatter_income <- ggplot(benzene_complete, 
+(scatter_incomeB <- ggplot(benzene_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
     geom_point())
 
-(scatter_urban <- ggplot(benzene_complete, 
+(scatter_urbanB <- ggplot(benzene_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
     geom_point())
 
-(scatter_density <- ggplot(benzene_complete, 
+(scatter_densityB <- ggplot(benzene_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
     geom_point())
 
-(scatter_unemployment <- ggplot(benzene_complete, 
+(scatter_unemploymentB <- ggplot(benzene_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
     geom_point())
@@ -419,28 +466,43 @@ AIC(B_model2) # = 447.5436
 # Diesel Model 
 ```{r}
 
-(scatter_population <- ggplot(diesel_complete, 
+(scatter_populationD <- ggplot(diesel_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
-  geom_point())
+  geom_point() + 
+    labs(x = "Population", 
+        y = "ug/m3"))
 
-(scatter_income <- ggplot(diesel_complete, 
+(scatter_incomeD <- ggplot(diesel_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+     labs(x = "Median Family Income ($)", 
+        y = "ug/m3"))
 
-(scatter_urban <- ggplot(diesel_complete, 
+(scatter_urbanD <- ggplot(diesel_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+     labs(x = "Urban or Rural County", 
+        y = "ug/m3"))
 
-(scatter_density <- ggplot(diesel_complete, 
+(scatter_densityD <- ggplot(diesel_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
-    geom_point())
+    geom_point() + 
+     labs(x = "Population Density (Persons/sqMile)", 
+        y = "ug/m3"))
 
-(scatter_unemployment <- ggplot(diesel_complete, 
+(scatter_unemploymentD <- ggplot(diesel_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point() + 
+     labs(x = "Unemployment (%)", 
+        y = "ug/m3")) 
 
+
+final_plot_diesel <- ((scatter_densityD + scatter_urbanD) / 
+  (scatter_populationD + scatter_unemploymentD) / scatter_incomeD) + 
+  plot_annotation(title = "Diesel Concentrations vs. County Demographics")
+plot(final_plot_diesel)
 ```
 
