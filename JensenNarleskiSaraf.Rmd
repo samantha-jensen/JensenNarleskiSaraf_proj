@@ -256,7 +256,14 @@ sd_unemploy <- sd(formaldehyde_complete$`Unemployment(Percent)`)
 
 formaldehyde_onroad <- formaldehyde_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "skyblue2", color = "slateblue4") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "slateblue4"),
+        axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
   labs(title = "Formaldehyde Onroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
@@ -265,7 +272,14 @@ formaldehyde_onroad
 
 formaldehyde_nonroad <- formaldehyde_complete %>%
   ggplot(aes(x = Nonroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "skyblue2", color = "slateblue4") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "slateblue4"),
+        axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
   labs(title = "Formaldehyde Nonroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
@@ -274,7 +288,14 @@ formaldehyde_nonroad
 
 benzene_onroad <- benzene_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "palegreen2", color = "darkgreen") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+        axis.title.x = element_text(face = "bold", color = "darkgreen"),
+        axis.title.y = element_text(face = "bold", color = "darkgreen"),
+        panel.background = element_rect(fill = "azure"),
+        panel.grid.major = element_line(color = "azure3"),
+        panel.grid.minor = element_line(color = "azure2")) +
   labs(title = "Benzene Onroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
@@ -283,7 +304,14 @@ benzene_onroad
 
 benzene_nonroad <- benzene_complete %>%
   ggplot(aes(x = Nonroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "palegreen2", color = "darkgreen") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+        axis.title.x = element_text(face = "bold", color = "darkgreen"),
+        axis.title.y = element_text(face = "bold", color = "darkgreen"),
+        panel.background = element_rect(fill = "azure"),
+        panel.grid.major = element_line(color = "azure3"),
+        panel.grid.minor = element_line(color = "azure2")) +
   labs(title = "Benzene Nonroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
@@ -292,17 +320,35 @@ benzene_nonroad
 
 diesel_onroad <- diesel_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "palevioletred", color = "violetred4") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) +
   labs(title = "Diesel Onroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
 
+diesel_onroad
+
 diesel_nonroad <- diesel_complete %>%
   ggplot(aes(x = Onroad_total)) +
-  geom_histogram() +
+  geom_histogram(bins = 60, fill = "palevioletred", color = "violetred4") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) +
   labs(title = "Diesel Nonroad Exposure Concentrations",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
+
+diesel_nonroad
 
 ```
 
@@ -313,40 +359,69 @@ diesel_nonroad <- diesel_complete %>%
 # Visualizing the relationship between response and descriptor variables 
 (scatter_population <- ggplot(formaldehyde_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
-  geom_point() + 
+  geom_point(color = "skyblue3") + 
+   theme(axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
    labs(x = "Population", 
         y = "ug/m3"))
 
 (scatter_income <- ggplot(formaldehyde_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
-    geom_point() + 
-    labs(x = "Median Family Income ($)", 
+    geom_point(color = "skyblue3") + 
+    scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    theme(axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
+   labs(x = "Median Family Income ($)", 
         y = "ug/m3"))
 
 (scatter_urban <- ggplot(formaldehyde_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point() + 
-    labs(x = "Urban or Rural Designation", 
+    geom_point(color = "skyblue3") + 
+    theme(axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
+   labs(x = "Urban/Rural", 
         y = "ug/m3"))
 
 (scatter_density <- ggplot(formaldehyde_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
-    geom_point() + 
-    labs(x = "Population Density (Persons/sqMile)", 
+    geom_point(color = "skyblue3") + 
+    theme(axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
+   labs(x = "Population Density (Person/sq mile)", 
         y = "ug/m3"))
 
 (scatter_unemployment <- ggplot(formaldehyde_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
-    geom_point() + 
-    labs(x = "Unemployment (%)", 
+    geom_point(color = "skyblue3") + 
+    theme(axis.title.x = element_text(face = "bold", color = "slateblue4"),
+        axis.title.y = element_text(face = "bold", color = "slateblue4"),
+        panel.background = element_rect(fill = "aliceblue"),
+        panel.grid.major = element_line(color = "lavenderblush3"),
+        panel.grid.minor = element_line(color = "lavenderblush2")) +
+   labs(x = "Unemployment (%)", 
         y = "ug/m3"))
 
 final_plot <- ((scatter_density + scatter_urban) / 
   (scatter_population + scatter_unemployment) / scatter_income) + 
-  plot_annotation(title = "Formaldehyde Concentrations vs. County Demographics")
+  plot_annotation(title = "Formaldehyde Concentrations vs. County Demographics",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "slateblue4")))
 plot(final_plot)
 
 # Perform correlation tests to test for collinearity
@@ -411,30 +486,81 @@ AIC3 <- AIC(model3)
 
 (scatter_populationB <- ggplot(benzene_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
-  geom_point())
+  geom_point(color = "palegreen4") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+        axis.title.x = element_text(face = "bold", color = "darkgreen"),
+        axis.title.y = element_text(face = "bold", color = "darkgreen"),
+        panel.background = element_rect(fill = "azure"),
+        panel.grid.major = element_line(color = "azure3"),
+        panel.grid.minor = element_line(color = "azure2")) +
+  labs(x = "Population",
+       y = "ug/m3"))
 
 (scatter_incomeB <- ggplot(benzene_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
-    geom_point())
+  geom_point(color = "palegreen4") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+        axis.title.x = element_text(face = "bold", color = "darkgreen"),
+        axis.title.y = element_text(face = "bold", color = "darkgreen"),
+        panel.background = element_rect(fill = "azure"),
+        panel.grid.major = element_line(color = "azure3"),
+        panel.grid.minor = element_line(color = "azure2")) +
+  labs(x = "Median Family Income ($)",
+       y = "ug/m3"))
 
 (scatter_urbanB <- ggplot(benzene_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point(color = "palegreen4") +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+          axis.title.x = element_text(face = "bold", color = "darkgreen"),
+          axis.title.y = element_text(face = "bold", color = "darkgreen"),
+          panel.background = element_rect(fill = "azure"),
+          panel.grid.major = element_line(color = "azure3"),
+          panel.grid.minor = element_line(color = "azure2")) +
+  labs(x = "Urban/Rural",
+       y = "ug/m3"))
 
 (scatter_densityB <- ggplot(benzene_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
-    geom_point())
+    geom_point(color = "palegreen4") +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+          axis.title.x = element_text(face = "bold", color = "darkgreen"),
+          axis.title.y = element_text(face = "bold", color = "darkgreen"),
+          panel.background = element_rect(fill = "azure"),
+          panel.grid.major = element_line(color = "azure3"),
+          panel.grid.minor = element_line(color = "azure2")) +
+  labs(x = "Population Density (Persons/sq Mile)",
+       y = "ug/m3"))
+
 
 (scatter_unemploymentB <- ggplot(benzene_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
-    geom_point())
+    geom_point(color = "palegreen4") +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "darkgreen"),
+          axis.title.x = element_text(face = "bold", color = "darkgreen"),
+          axis.title.y = element_text(face = "bold", color = "darkgreen"),
+          panel.background = element_rect(fill = "azure"),
+          panel.grid.major = element_line(color = "azure3"),
+          panel.grid.minor = element_line(color = "azure2")) +
+  labs(x = "Unemployment (%)",
+       y = "ug/m3"))
+
 
 final_plotB <- ((scatter_densityB + scatter_urbanB) / 
   (scatter_populationB + scatter_unemploymentB) / scatter_incomeB) + 
-  plot_annotation(title = "Benzene Concentrations vs. County Demographics")
+  plot_annotation(title = "Benzene Concentrations vs. County Demographics",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "darkgreen")))
 plot(final_plotB)
 
 # Perform correlation tests to test for collinearity
