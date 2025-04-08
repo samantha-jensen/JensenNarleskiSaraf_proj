@@ -518,5 +518,78 @@ final_plot_diesel <- ((scatter_densityD + scatter_urbanD) /
   (scatter_populationD + scatter_unemploymentD) / scatter_incomeD) + 
   plot_annotation(title = "Diesel Concentrations vs. County Demographics")
 plot(final_plot_diesel)
+
+# Perform correlation tests to test for collinearity
+
+cor.test(diesel_complete$Population, 
+         diesel_complete$`Median Family Income (Dollars)`) 
+
+# Generate regression models
+D_model1 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+               diesel_complete)
+summary(D_model1)
+plot(D_model1)
+AIC(D_model1) #490.5862
+
+diesel_nooutlier <- diesel_complete[-c(60,92),]
+
+D_model1_nooutlier <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+               diesel_nooutlier)
+summary(D_model1_nooutlier)
+plot(D_model1_nooutlier)
+AIC(D_model1_nooutlier) #297.3357
+
+D_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` +
+                 URBAN_RURAL, diesel_nooutlier)
+summary(D_model2)
+plot(D_model2)
+AIC(D_model2) #410.9054
+
+D_model2_nooutlier <- diesel_nooutlier[-c(31,42,64),]
+
+D_model3 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` +
+                 URBAN_RURAL, D_model2_nooutlier)
+summary(D_model3)
+plot(D_model3)
+AIC(D_model3) #321.977
+
+diesel_complete <- diesel_complete %>%
+  mutate(log_conc = log10(Total.Exposure.Conc))
+
+#log concentrations in diesel complete (new column)
+#instead of total concentratuion, have log concentration in the model 
+
+D_model_log <- lm(log_conc ~ Population + URBAN_RURAL, 
+               diesel_complete)
+summary(D_model_log)
+plot(D_model_log)
+AIC(D_model_log)
+
+log_model2 <- lm(log_conc ~ Population + URBAN_RURAL, 
+                 diesel_nooutlier)
+summary(log_model2)
+plot(log_model2)
+
+log_nooutliers <- diesel_nooutlier[-c(32,41),]
+
+log_model3 <- lm(log_conc ~ Population + URBAN_RURAL, 
+                 log_nooutliers)
+summary(log_model3)
+plot(log_model3)
+
+log_nooutliers2 <- log_nooutliers[-c(26,32),]
+
+log_model4 <- lm(log_conc ~ Population + URBAN_RURAL, 
+                 log_nooutliers2)
+summary(log_model4)
+plot(log_model4)
+
+log_outliers3 <- log_nooutliers2[-c(31),]
+
+log_model5 <- lm(log_conc ~ Population + URBAN_RURAL, 
+                 log_outliers3)
+summary(log_model5)
+plot(log_model5)
+
 ```
 
