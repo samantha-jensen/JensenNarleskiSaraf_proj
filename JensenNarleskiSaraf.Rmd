@@ -389,7 +389,7 @@ diesel_nonroad
         panel.background = element_rect(fill = "aliceblue"),
         panel.grid.major = element_line(color = "lavenderblush3"),
         panel.grid.minor = element_line(color = "lavenderblush2")) +
-   labs(x = "Urban/Rural", 
+   labs(x = "Urban or Rural County", 
         y = "ug/m3"))
 
 (scatter_density <- ggplot(formaldehyde_complete, 
@@ -522,7 +522,7 @@ AIC3 <- AIC(model3)
           panel.background = element_rect(fill = "azure"),
           panel.grid.major = element_line(color = "azure3"),
           panel.grid.minor = element_line(color = "azure2")) +
-  labs(x = "Urban/Rural",
+  labs(x = "Urban or Rural County",
        y = "ug/m3"))
 
 (scatter_densityB <- ggplot(benzene_complete, 
@@ -608,41 +608,80 @@ AIC(B_model2) # = 447.5436
 
 (scatter_populationD <- ggplot(diesel_complete, 
                               aes(x = Population, y = Total.Exposure.Conc)) + 
-  geom_point() + 
+  geom_point(color = "palevioletred") +
+   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) +
     labs(x = "Population", 
         y = "ug/m3"))
 
 (scatter_incomeD <- ggplot(diesel_complete, 
                           aes(x = `Median Family Income (Dollars)`, 
                               y = Total.Exposure.Conc)) + 
-    geom_point() + 
+  geom_point(color = "palevioletred") +
+     scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
+   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) + 
      labs(x = "Median Family Income ($)", 
         y = "ug/m3"))
 
 (scatter_urbanD <- ggplot(diesel_complete, 
                          aes(x = URBAN_RURAL, y = Total.Exposure.Conc)) + 
-    geom_point() + 
+   geom_point(color = "palevioletred") +
+   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) + 
      labs(x = "Urban or Rural County", 
         y = "ug/m3"))
 
 (scatter_densityD <- ggplot(diesel_complete, 
                            aes(x = `Population Density (Persons Per SqMile)`, 
                                y = Total.Exposure.Conc)) +
-    geom_point() + 
-     labs(x = "Population Density (Persons/sqMile)", 
+    geom_point(color = "palevioletred") +
+   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) + 
+     labs(x = "Population Density (Persons/sq Mile)", 
         y = "ug/m3"))
 
 (scatter_unemploymentD <- ggplot(diesel_complete, 
                                 aes(x =`Unemployment(Percent)`, 
                                     y = Total.Exposure.Conc)) + 
-    geom_point() + 
+    geom_point(color = "palevioletred") +
+   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
+                                  color = "violetred4"),
+        axis.title.x = element_text(face = "bold", color = "violetred4"),
+        axis.title.y = element_text(face = "bold", color = "violetred4"),
+        panel.background = element_rect(fill = "seashell"),
+        panel.grid.major = element_line(color = "mistyrose3"),
+        panel.grid.minor = element_line(color = "mistyrose2")) +
      labs(x = "Unemployment (%)", 
         y = "ug/m3")) 
 
 
 final_plot_diesel <- ((scatter_densityD + scatter_urbanD) / 
   (scatter_populationD + scatter_unemploymentD) / scatter_incomeD) + 
-  plot_annotation(title = "Diesel Concentrations vs. County Demographics")
+  plot_annotation(title = "Diesel Concentrations vs. County Demographics",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "violetred4")))
 plot(final_plot_diesel)
 
 # Perform correlation tests to test for collinearity
