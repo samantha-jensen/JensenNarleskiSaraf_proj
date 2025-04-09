@@ -264,11 +264,9 @@ formaldehyde_onroad <- formaldehyde_complete %>%
         panel.background = element_rect(fill = "aliceblue"),
         panel.grid.major = element_line(color = "lavenderblush3"),
         panel.grid.minor = element_line(color = "lavenderblush2")) +
-  labs(title = "Formaldehyde Onroad Exposure Concentrations",
+  labs(title = "Onroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
-
-formaldehyde_onroad
 
 formaldehyde_nonroad <- formaldehyde_complete %>%
   ggplot(aes(x = Nonroad_total)) +
@@ -280,11 +278,16 @@ formaldehyde_nonroad <- formaldehyde_complete %>%
         panel.background = element_rect(fill = "aliceblue"),
         panel.grid.major = element_line(color = "lavenderblush3"),
         panel.grid.minor = element_line(color = "lavenderblush2")) +
-  labs(title = "Formaldehyde Nonroad Exposure Concentrations",
+  labs(title = "Nonroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
 
-formaldehyde_nonroad
+form_plot <- (formaldehyde_onroad + formaldehyde_nonroad) + 
+  plot_annotation(title = "Formaldehyde Onroad & Nonroad Concentrations ",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "slateblue4")))
+plot(form_plot)
 
 benzene_onroad <- benzene_complete %>%
   ggplot(aes(x = Onroad_total)) +
@@ -296,11 +299,9 @@ benzene_onroad <- benzene_complete %>%
         panel.background = element_rect(fill = "azure"),
         panel.grid.major = element_line(color = "azure3"),
         panel.grid.minor = element_line(color = "azure2")) +
-  labs(title = "Benzene Onroad Exposure Concentrations",
+  labs(title = "Onroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
-
-benzene_onroad
 
 benzene_nonroad <- benzene_complete %>%
   ggplot(aes(x = Nonroad_total)) +
@@ -312,11 +313,16 @@ benzene_nonroad <- benzene_complete %>%
         panel.background = element_rect(fill = "azure"),
         panel.grid.major = element_line(color = "azure3"),
         panel.grid.minor = element_line(color = "azure2")) +
-  labs(title = "Benzene Nonroad Exposure Concentrations",
+  labs(title = "Nonroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
 
-benzene_nonroad
+ben_plot <- (benzene_onroad + benzene_nonroad) + 
+  plot_annotation(title = "Benzene Onroad & Nonroad Concentrations ",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "darkgreen")))
+plot(ben_plot)
 
 diesel_onroad <- diesel_complete %>%
   ggplot(aes(x = Onroad_total)) +
@@ -328,14 +334,12 @@ diesel_onroad <- diesel_complete %>%
         panel.background = element_rect(fill = "seashell"),
         panel.grid.major = element_line(color = "mistyrose3"),
         panel.grid.minor = element_line(color = "mistyrose2")) +
-  labs(title = "Diesel Onroad Exposure Concentrations",
+  labs(title = "Onroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
 
-diesel_onroad
-
 diesel_nonroad <- diesel_complete %>%
-  ggplot(aes(x = Onroad_total)) +
+  ggplot(aes(x = Nonroad_total)) +
   geom_histogram(bins = 60, fill = "palevioletred", color = "violetred4") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold", 
                                   color = "violetred4"),
@@ -344,11 +348,16 @@ diesel_nonroad <- diesel_complete %>%
         panel.background = element_rect(fill = "seashell"),
         panel.grid.major = element_line(color = "mistyrose3"),
         panel.grid.minor = element_line(color = "mistyrose2")) +
-  labs(title = "Diesel Nonroad Exposure Concentrations",
+  labs(title = "Nonroad Exposure",
        x = "Exposure Concentration (ug/m3)",
        y = "Count")
 
-diesel_nonroad
+diesel_plot <- (diesel_onroad + diesel_nonroad) + 
+  plot_annotation(title = "Diesel PM Onroad & Nonroad Concentrations ",
+                  theme = theme(
+                    plot.title = element_text(hjust = 0.5, face = "bold", 
+                                              color = "violetred4")))
+plot(diesel_plot)
 
 ```
 
@@ -596,11 +605,46 @@ summary(Bmodel1_nooutlier)
 plot(Bmodel1_nooutlier)
 AIC(Bmodel1_nooutlier) # = 447.2516
 
-B_model2 <- lm(Total.Exposure.Conc ~ `Population Density (Persons Per SqMile)` +
-                 URBAN_RURAL, benzene_complete)
+benzene_nooutlier <- benzene_nooutlier[-91,]
+
+B_model2 <- lm(Total.Exposure.Conc ~ Population + URBAN_RURAL, 
+               benzene_nooutlier)
 summary(B_model2)
 plot(B_model2)
-AIC(B_model2) # = 447.5436
+AIC(B_model2) # = 441.7628
+
+benzene_complete <- benzene_complete %>%
+  mutate(log_conc = log10(Total.Exposure.Conc))
+
+B_model_log <- lm(log_conc ~ Population + URBAN_RURAL, 
+               benzene_complete)
+summary(B_model_log)
+plot(B_model_log)
+AIC(B_model_log) #32.28993
+
+B_model_log2 <- lm(log_conc ~ `Unemployment(Percent)` + URBAN_RURAL, 
+               benzene_complete)
+
+summary(B_model_log2)
+plot(B_model_log2)
+AIC(B_model_log2)
+
+log_nooutliers <- benzene_complete[-c(60,48,37),]
+
+B_model_log3 <- lm(log_conc ~ `Unemployment(Percent)` + URBAN_RURAL, 
+               log_nooutliers)
+
+summary(B_model_log3)
+plot(B_model_log3)
+AIC(B_model_log3)
+
+B_model_log4 <- lm(log_conc ~ `Median Family Income (Dollars)` + URBAN_RURAL, 
+               log_nooutliers)
+
+summary(B_model_log4)
+plot(B_model_log4)
+AIC(B_model_log4)
+
 ```
 
 # Diesel Model 
