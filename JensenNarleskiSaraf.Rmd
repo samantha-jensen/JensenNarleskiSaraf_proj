@@ -775,7 +775,7 @@ plot(D_model_log)
 AIC(D_model_log)
 
 log_model2 <- lm(log_conc ~ Population + URBAN_RURAL, 
-                 diesel_nooutlier)
+                diesel_complete)
 summary(log_model2)
 plot(log_model2)
 
@@ -783,8 +783,8 @@ diesel_nooutlier2 <- diesel_complete[-c(60,92),]
 log_nooutliers <- diesel_nooutlier2[-c(32,41),]
 
 log_model3 <- lm(log_conc ~ Population + URBAN_RURAL, 
-                 log_nooutliers)
-summary(log_model3)
+                log_nooutliers)
+Esummary(log_model3)
 plot(log_model3)
 
 log_nooutliers2 <- log_nooutliers[-c(26,33),]
