@@ -2,7 +2,9 @@
 title: "JensenNarleskiSaraf_proj"
 author: "Samantha Jensen, Jaclyn Narleski, Akanksha Saraf"
 date: "2025-03-12"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 Is there a significant difference between exposures for pollutants based on activity?
 recreational, commercial, industrial, agricultural comparing specific pollutants (ANOVA)
@@ -784,7 +786,7 @@ log_nooutliers <- diesel_nooutlier2[-c(32,41),]
 
 log_model3 <- lm(log_conc ~ Population + URBAN_RURAL, 
                 log_nooutliers)
-Esummary(log_model3)
+summary(log_model3)
 plot(log_model3)
 
 log_nooutliers2 <- log_nooutliers[-c(26,33),]
