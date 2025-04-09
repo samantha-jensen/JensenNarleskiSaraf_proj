@@ -489,6 +489,58 @@ AIC3 <- AIC(model3)
 
 # Model 1 without outliers has the lowest AIC value and is the one that I will write the results about. 
 
+(histogram_form <- ggplot(formaldehyde_complete, aes(x = Total.Exposure.Conc)) + 
+  geom_histogram())
+
+formaldehyde_complete <- formaldehyde_complete %>% 
+  mutate(log_concentrations = log10(Total.Exposure.Conc))
+
+(hist_log_F <- ggplot(formaldehyde_complete, aes(x = log_concentrations)) + 
+  geom_histogram())
+
+F_model_log1 <- lm(log_concentrations ~ Population + URBAN_RURAL,
+                 formaldehyde_complete)
+summary(F_model_log1)
+plot(F_model_log1)
+
+f_log_nooutlier <- formaldehyde_complete[-c(60,92),]
+
+F_model_log1_noout <- lm(log_concentrations ~ Population + URBAN_RURAL,
+                 f_log_nooutlier)
+summary(F_model_log1_noout)
+plot(F_model_log1_noout)
+
+f_log_nout2 <- f_log_nooutlier[-c(32,41),]
+f_log_noout_model2 <- lm(log_concentrations ~ Population + URBAN_RURAL,
+                 f_log_nout2)
+summary(f_log_noout_model2)
+plot(f_log_noout_model2)
+
+f_final_outlier <- f_log_nout2[-c(26,33),]
+log_model3 <- lm(log_concentrations ~ Population + URBAN_RURAL,
+                 f_final_outlier)
+summary(log_model3)
+plot(log_model3)
+
+log_model4 <- lm(log_concentrations ~ `Population Density (Persons Per SqMile)` + URBAN_RURAL,
+                 f_final_outlier)
+summary(log_model4)
+plot(log_model4)
+
+log_model5 <- lm(log_concentrations ~ URBAN_RURAL + 
+               `Median Family Income (Dollars)` + 
+               Population, f_final_outlier)
+summary(log_model5)
+plot(log_model5)
+
+log_model6 <- lm(log_concentrations ~ URBAN_RURAL + Population + `Unemployment(Percent)`, f_final_outlier)
+summary(log_model6)
+plot(log_model6)
+
+AIC3 <- AIC(log_model3)
+AIC4 <- AIC(log_model4)
+AIC5 <- AIC(log_model5)
+AIC6 <- AIC(log_model6)
 ```
 
 #### Benzene Model 
